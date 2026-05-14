@@ -25,11 +25,14 @@ app.use('/api/tasks', taskRoutes);
 app.use('/api/dashboard', dashboardRoutes);
 
 // Serve frontend in production
-if (process.env.NODE_ENV === 'production') {
-  app.use(express.static(path.join(__dirname, '../frontend/dist')));
+if (process.env.NODE_ENV === 'production' || process.env.RAILWAY_ENVIRONMENT) {
+  const distPath = path.join(__dirname, '../frontend/dist');
+  app.use(express.static(distPath));
 
-  app.use((req, res) => {
-    res.sendFile(path.resolve(__dirname, '../frontend', 'dist', 'index.html'));
+  // Handle SPA routing
+  app.get('*', (req, res, next) => {
+    if (req.path.startsWith('/api')) return next();
+    res.sendFile(path.join(distPath, 'index.html'));
   });
 } else {
   app.get('/', (req, res) => {
@@ -44,6 +47,12 @@ app.use((err, req, res, next) => {
 });
 
 const PORT = process.env.PORT || 5000;
+
+// MONGO_URI check
+if (!process.env.MONGO_URI) {
+  console.error('❌ Error: MONGO_URI is not defined in environment variables');
+  process.exit(1);
+}
 
 // ✅ FIXED MONGODB CONNECTION (NO OLD OPTIONS)
 mongoose.connect(process.env.MONGO_URI)
