@@ -10,7 +10,7 @@ const Register = () => {
   const [error, setError] = useState('');
   
   // ✅ FIXED HERE
-  const { register } = useContext(AuthContext);
+  const { registerUser } = useContext(AuthContext);
 
   const navigate = useNavigate();
 
@@ -19,7 +19,7 @@ const Register = () => {
     setError('');
 
     // ✅ FIXED HERE
-    const result = await register(name, email, password, role);
+    const result = await registerUser(name, email, password, role);
 
     if (result.success) {
       navigate('/');
